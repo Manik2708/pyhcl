@@ -150,6 +150,15 @@ Every pull request runs two jobs:
   passes, so a red result on your pull request does not by itself mean you
   broke something. Compare the failing cases with those on `master`.
 
+## License
+
+pyhcl is licensed under the [Mozilla Public License 2.0](LICENSE), the same
+license as the HashiCorp HCL code it is ported from. By opening a pull request
+you agree that your contribution is licensed under the MPL 2.0 as well.
+
+Only contribute code you wrote yourself or ported from `hashicorp/hcl`. Do not
+copy code from projects under other licenses.
+
 ## Getting help
 
 Stuck on setup, on reading the Go code, or on what a spec case expects? Ask in
