@@ -1,0 +1,87 @@
+name: CI
+
+# Two gates on every push and pull request:
+#
+#   checks     formatting, lint and type checking (ruff, mypy)
+#   specsuite  HashiCorp's official HCL conformance suite (hcl/specsuite, driven
+#              by cmd/hclspecsuite) against pyhcl's hcldec adapter. Green when
+#              every spec case passes.
+#
+# The hashicorp/hcl release under test is the tag in src/pyhcl/HCL_VERSION.
+# scripts/run-specsuite.sh fetches exactly that release, so upstream changes
+# reach this workflow only when that file is bumped.
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out pyhcl
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install pyhcl
+        run: uv sync --locked
+
+      # Each check runs even if an earlier one failed, so a PR shows every
+      # problem in one go.
+      - name: Format (ruff format)
+        run: uv run ruff format --check --diff .
+
+      - name: Lint (ruff check)
+        if: ${{ !cancelled() }}
+        run: uv run ruff check --output-format=github .
+
+      - name: Type check (mypy)
+        if: ${{ !cancelled() }}
+        run: uv run mypy
+
+  specsuite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out pyhcl
+        uses: actions/checkout@v4
+
+      # The Go toolchain required by the pinned release's go.mod is fetched
+      # automatically at build time if it is newer than this one.
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      # The pinned HCL sources and the runner built from them.
+      - name: Cache pinned HCL release
+        uses: actions/cache@v4
+        with:
+          path: .hcl
+          key: hcl-${{ runner.os }}-${{ hashFiles('src/pyhcl/HCL_VERSION', 'scripts/run-specsuite.sh') }}
+
+      - name: Install pyhcl
+        run: uv sync --locked
+
+      - name: Run HCL spec suite
+        run: scripts/run-specsuite.sh
