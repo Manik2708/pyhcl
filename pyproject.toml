@@ -3,6 +3,8 @@ name = "pyhcl"
 version = "0.1.0"
 description = "A Python implementation of HashiCorp HCL2 (reader + writer)"
 readme = "README.md"
+license = "MPL-2.0"
+license-files = ["LICENSE"]
 authors = [
     { name = "Manik Mehta", email = "mehtamanik96@gmail.com" }
 ]

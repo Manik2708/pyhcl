@@ -97,3 +97,10 @@ scripts/
 .github/workflows/
   ci.yml          format, lint, type check and conformance suite
 ```
+
+## License
+
+pyhcl is licensed under the [Mozilla Public License 2.0](LICENSE).
+
+It is a port of [hashicorp/hcl](https://github.com/hashicorp/hcl), which is
+copyright HashiCorp, Inc. and also licensed under the MPL 2.0.
